@@ -1,0 +1,205 @@
+<!-- HTML belgesinin türünü belirtiyoruz -->
+<!DOCTYPE html>
+
+<!-- Sayfa dili Türkçe -->
+<html lang="tr">
+
+<head>
+    <!-- Türkçe karakter desteği -->
+    <meta charset="UTF-8">
+
+    <!-- Sekme (tab) başlığı -->
+    <title>Mini To-Do App</title>
+    
+    <!-- Sayfa içi CSS -->
+    <style>
+
+        /* Sayfanın genel görünümü */
+        body {
+            font-family: Arial;     /* Yazı tipi */
+            background: #f4f4f4;    /* Arka plan rengi */
+            margin: 0;              /* Dış boşlukları sıfırla */
+            padding: 0;             /* İç boşlukları sıfırla */
+            transition: .3s;        /* Tema geçiş animasyonu */
+        }
+
+        /* Ortadaki ana kutu (container) */
+        .container {
+            width: 750px;                   /* Kutunun genişliği */
+            margin: 75px auto;              /* Ortalamak için auto */
+            background: white;              /* Beyaz arka plan */
+            padding: 20px;                  /* İç boşluk */
+            border-radius: 10px;            /* Köşeleri yuvarlat */
+            box-shadow: 0 0 10px rgba(0,0,0,.1); /* Hafif gölge */
+        }
+
+        /* Başlık yapısı */
+        h2 {
+            display: flex;                  /* Yatay yerleşim */
+            justify-content: space-between; /* Sağ/sol hizalama */
+            align-items: center;            /* Dikey hizalama */
+            color: black;                   /* Yazı rengi */
+        }
+
+        /* Görev yazma inputu */
+        #todoInput {
+            width: 100%;               /* Tam genişlik */
+            padding: 10px;             /* İç boşluk */
+            border: 1px solid #ddd;    /* Çerçeve */
+            border-radius: 5px;        /* Köşeler */
+            box-sizing: border-box;    /* Taşmayı engelle */
+        }
+
+        /* Görev ekleme butonu */
+        #addBtn {
+            margin-top: 10px;          /* Yukarıdan boşluk */
+            width: 100%;               /* Tam genişlik */
+            padding: 10px;             /* İç boşluk */
+            background: #4CAF50;       /* Yeşil arka plan */
+            color: white;              /* Yazı rengi */
+            border: none;              /* Kenarlık yok */
+            border-radius: 5px;        /* Oval köşeler */
+            cursor: pointer;           /* Mouse el simgesi */
+        }
+
+        /* Görev listesi (ul) */
+        ul {
+            margin-top: 20px;
+            padding: 0;
+            list-style: none;          /* Madde işareti yok */
+        }
+
+        /* Tek bir görev satırı (li) */
+        li {
+            padding: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;             /* Yatay dağılım */
+            justify-content: space-between;
+        }
+
+        /* Sadece görev metni için çizgi çekilsin */
+        .completed .task-text {
+            text-decoration: line-through; /* Üst çizgi */
+            opacity: .6;                   /* Soluk görünüm */
+        }
+
+        /* Tema butonu */
+        .theme-btn {
+            padding: 6px 10px;
+            border: none;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Dark mode aktifken body sınıfı */
+        .dark {
+            background: #121212;
+            color: white;
+        }
+
+        /* Dark modda görev kutuları */
+        .dark li {
+            background: #333;
+        }
+
+        /* Bildirim kutusu */
+        #messageBox {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;             /* Başta gizli */
+            transition: 0.2s ease;     /* Görünme animasyonu */
+            font-size: 14px;           /* Yazı boyutu */
+            box-sizing: border-box;
+        }
+
+        /* Başarı mesajı */
+        .success {
+            background: #af4c4c;
+            color: white;
+        }
+
+        /* Hata / geri alma mesajı */
+        .error {
+            background: #af4c4c;
+            color: white;
+        }
+
+        /* Tooltip temel alan */
+        .btn-tip {
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Tooltip balonu (varsayılan = açık tema) */
+        .btn-tip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            background: #ffffff;         /* Açık temada beyaz */
+            color: #000000;              /* Açık temada siyah yazı */
+            border: 1px solid #ccc;      /* Hafif gri çerçeve */
+
+            padding: 5px 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            white-space: nowrap;
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        /* Animasyon */
+        .btn-tip::after {
+            opacity: 0;
+            transition: 0.2s ease;
+        }
+
+        /* 🌙 DARK MODE tooltip */
+        .dark .btn-tip:hover::after {
+            background: #000000;        /* koyu tema: siyah */
+            color: #ffffff;             /* yazı: beyaz */
+            border: 1px solid #555;     /* koyu gri çerçeve */
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+<!-- Ana kapsayıcı -->
+<div class="container">
+
+    <!-- Başlık + Tema butonu -->
+    <h2>
+        TO-DO LIST
+        <button class="theme-btn" id="themeBtn">Dark</button>
+    </h2>
+
+    <!-- Görev yazma alanı -->
+    <input type="text" id="todoInput" placeholder="Görev Yaz...">
+
+    <!-- Ekle butonu -->
+    <button id="addBtn">Ekle</button>
+
+    <!-- Bildirim kutusu -->
+    <div id="messageBox"></div>
+
+    <!-- Görevlerin listeleneceği yer -->
+    <ul id="todoList"></ul>
+
+</div>
+
+<!-- JavaScript dosyası -->
+<script src="to-do.js"></script>
+
+</body>
+</html>
